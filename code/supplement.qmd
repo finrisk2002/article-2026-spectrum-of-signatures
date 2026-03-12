@@ -1,0 +1,220 @@
+---
+title: ""
+format: pdf
+execute:
+  echo: false
+---
+
+# Supplementary material
+
+```{r}
+#| output: false
+library(dplyr)
+library(gt)
+library(ggplot2)
+```
+
+```{r}
+
+cont <- read.csv("./tables/survival.csv")
+cont <- cont[, c("endpoint", "ncomps", "name", "HR", "lower95", "upper95", "q_val")]
+cont$name <- gsub("_", " ", cont$name)
+cont$name <- paste0("ES-", cont$name)
+cont$significant <- case_when(cont$q_val < 0.05 & cont$q_val > 0.01 ~ "*",
+                              cont$q_val < 0.01 & cont$q_val > 0.001 ~ "**",
+                              cont$q_val < 0.001 ~ "***",
+                              cont$q_val > 0.05 ~ "")
+colnames(cont)[c(2,5,6,7)] <- c("k", "95%CI lower", "95%CI upper","q")
+
+cont %>% gt() %>% fmt_scientific(
+    columns = c(q),
+    n_sigfig = 2) %>% fmt_number(
+    columns = c(HR, "95%CI lower", "95%CI upper"),
+    decimals = 2) %>%
+  tab_header(
+    title = md("**Table S1**. Multivariate Cox proportional hazards regression (k={1,2,...,20} for mortality endpoint: k={5,20} for others), continuous predictors. q<0.05 is considered significant."))%>%
+  tab_options(
+    table.font.size           = "8px",
+    heading.title.font.size   = "12px",
+    heading.subtitle.font.size   = "11px",
+    column_labels.font.size   = "11px",
+    latex.use_longtable = TRUE
+  )
+```
+
+```{r}
+kendall <- read.csv("./tables/kendall.csv")
+kendall <- kendall[, c("var1", "var2", "cor", "p", "sig_label")]
+colnames(kendall) <- c("ES", "variable", "tau", "p", "significant")
+kendall$method <- NULL
+
+kendall %>% gt() %>% fmt_scientific(
+    columns = c(p),
+    n_sigfig = 2) %>% fmt_number(
+    columns = c(tau),
+    n_sigfig = 2) %>%
+  tab_header(
+    title = md("**Table S2**. Kendall's tau correlation analysis for ES and selected variables. Unadjusted p<0.05 is considered significant.")) %>%
+  tab_options(
+    table.font.size           = "8px",
+    heading.title.font.size   = "12px",
+    heading.subtitle.font.size   = "11px",
+    column_labels.font.size   = "11px",
+    latex.use_longtable = TRUE
+  )
+```
+
+```{r}
+df <- read.csv("./tables/survival_categ_k5.csv")
+colnames(df) <- c("principal_ES", "coeff", "exp_coeff", "se", "z", "p_val", "q_val", "lower95", "upper95")
+df <- df[,c("principal_ES", "exp_coeff","lower95", "upper95", "q_val")]
+df$principal_ES <- gsub("topic", "", df$principal_ES)
+
+df$significant <- case_when(df$q_val < 0.05 & df$q_val > 0.01 ~ "*",
+                              df$q_val < 0.01 & df$q_val > 0.001 ~ "**",
+                              df$q_val < 0.001 ~ "***",
+                              df$q_val > 0.05 ~ "")
+
+colnames(df)[c(1:5)] <- c("principal ES", "HR", "95%CI lower", "95%CI upper", "q")
+
+df %>% gt() %>% fmt_scientific(
+    columns = c(q),
+    n_sigfig = 2) %>% fmt_number(
+    columns = c(HR, "95%CI lower", "95%CI upper"),
+    decimals = 2) %>%
+  tab_header(
+    title = md("**Table S3**. Categorical Cox proportional hazards regression (k=5), where ES-Bact is set as the reference level. q<0.05 is considered significant.")) %>%
+  tab_options(
+    table.font.size           = "8px",
+    heading.title.font.size   = "12px",
+    heading.subtitle.font.size   = "11px",
+    column_labels.font.size   = "11px",
+    latex.use_longtable = TRUE
+  )
+```
+
+```{r}
+df <- read.csv("./tables/survival_categ_k20.csv")
+colnames(df) <- c("principal_ES", "coeff", "exp_coeff", "se", "z", "p_val", "q_val", "lower95", "upper95")
+df <- df[,c("principal_ES", "exp_coeff","lower95", "upper95", "q_val")]
+df$principal_ES <- gsub("topic", "", df$principal_ES)
+
+df$significant <- case_when(df$q_val < 0.05 & df$q_val > 0.01 ~ "*",
+                              df$q_val < 0.01 & df$q_val > 0.001 ~ "**",
+                              df$q_val < 0.001 ~ "***",
+                              df$q_val > 0.05 ~ "")
+colnames(df)[c(1:5)] <- c("principal ES", "HR", "95%CI lower", "95%CI upper", "q")
+
+df %>% gt() %>% fmt_scientific(
+    columns = c(q),
+    n_sigfig = 2) %>% fmt_number(
+    columns = c(HR, "95%CI lower", "95%CI upper"),
+    decimals = 2) %>%
+  tab_header(
+    title = md("**Table S4**. Categorical Cox proportional hazards regression (k=20), where ES-Bact. H uniformis is set as the reference level. q<0.05 is considered significant.")) %>%
+  tab_options(
+    table.font.size           = "8px",
+    heading.title.font.size   = "12px",
+    heading.subtitle.font.size   = "11px",
+    column_labels.font.size   = "11px"
+  )
+```
+
+```{r}
+df <- read.csv("./tables/univariate_sensitivity.csv")
+df <- df[,c("name", "HR","lower95", "upper95", "q_val", "significant")]
+
+colnames(df)[c(3:5)] <- c("95%CI lower", "95%CI upper", "q")
+df$name <- gsub("_", " ", df$name)
+
+df %>% gt() %>% fmt_scientific(
+    columns = c(q),
+    n_sigfig = 2) %>% fmt_number(
+    columns = c(HR, "95%CI lower", "95%CI upper"),
+    decimals = 2) %>%
+  tab_header(
+    title = md("**Table S5**. Cox proportional hazards regression for the univariate ES (k=20) and genus abundance with respect to total mortality. The signals were inverse rank transformed for the analysis. q<0.05 is considered significant.")) %>%
+  tab_options(
+    table.font.size           = "9px",
+    heading.title.font.size   = "12px",
+    heading.subtitle.font.size   = "11px",
+    column_labels.font.size   = "11px"
+  )
+```
+
+```{r}
+df <- read.csv("./tables/univariate_sensitivity.csv")
+df$X <- NULL
+
+# Add duplicate rows for plotting
+add_rows <- df %>% slice(rep(c(21, 23, 31, 32), times = c(1, 3, 1,2)))
+df <- rbind(df, add_rows)
+
+genera <- df$name[df$Set == "Genus"]
+
+df <- df %>%
+  group_by(HR) %>%
+  mutate(id = row_number())
+
+df$category <- case_when(df$name %in% c("ES-Blau. A wexlerae", "Blautia A 141781") ~ "blau",
+                            df$name %in% c("ES-Alis. A putredinis", "Alistipes A 871400") ~ "alis",
+                            df$name %in% c("ES-Agat. faecis", "Agathobacter 164117") ~ "agat_f",
+                            df$name %in% c("ES-Bifi. adolescentis", "Bifidobacterium 388775") ~ "bifi",
+                            df$name %in% c("ES-Phoc. A plebeius","Phocaeicola A 858004") ~ "phoc_p",
+                            df$name %in% c("ES-Fime. sp000432435", "Fimenecus") ~ "fime",
+                            df$name %in% c("ES-Bact. H cellulosilyticus", "Bacteroides H") ~ "bact_c",
+                            df$name %in% c("ES-RUG1. sp900066395", "RUG115") ~ "rug",
+                            df$name %in% c("ES-Faec. sp000434635", "Faecousia") ~ "faec",
+                            df$name %in% c("ES-Prev. copri", "Prevotella") ~ "prev_c",
+                            df$name %in% c("ES-Esch. ruysiae", "Escherichia 710834") ~ "esch",
+                            df$name %in% c("ES-Flav. plautii", "Flavonifractor") ~ "flav",
+                            df$name %in% c("ES-Gemm. A qucibialis", "Gemmiger A 73129") ~ "gemm")
+
+df$category <- case_when(# duplicates
+  df$name == "ES-Agat. rectalis" | (df$name == "Agathobacter 164117" &
+                                      df$id == 2) ~ "agat_r",
+  df$name == "ES-Phoc. A vulgatus"|(df$name == "Phocaeicola A 858004" &
+                                      df$id == 2) ~ "phoc_v",
+  df$name == "ES-Bact. H stercoris"| (df$name == "Bacteroides H" &
+                                        df$id == 2) ~ "bact_s",              
+  df$name=="ES-Bact. H uniformis"|(df$name=="Bacteroides H" &
+                                     df$id == 3) ~ "bact_u",  
+  df$name=="ES-Bact. H xylanisolvens" | (df$name=="Bacteroides H" &
+                                           df$id ==4) ~ "bact_x",  
+  df$name=="ES-Prev. rara" | (df$name=="Prevotella" &
+                                df$id ==2)~"prev_r",
+  df$name=="ES-Prev. sp003447235"|(df$name=="Prevotella" &
+                                     df$id == 3) ~ "prev_s",
+  TRUE ~ df$category)
+df$category <- as.factor(df$category)
+
+# order the left and right name vectors
+order <- levels(reorder(df$category, df$HR))
+es <- subset(df, df$Set == "ES")
+index <- match(order, es$category)
+left_names <- es$name[index]
+
+gen <- subset(df, df$Set == "Genus")
+index <- match(order, gen$category)
+right_names <- gen$name[index]
+
+p <- ggplot(df, aes(x = Set, y = reorder(category, HR), fill = HR)) +
+  geom_tile(color = "grey80") +
+  scale_fill_gradient2(
+    low = "navyblue", mid = "white", high = "deeppink3",
+    midpoint = 1) +
+  scale_y_discrete(
+    labels = left_names,
+    sec.axis = dup_axis(labels = right_names)
+    ) +
+  geom_text(aes(label = significant), color = "black", size = 3) +
+  labs(fill = "HR", x = "", y = "", title = "", 
+       subtitle = "") +
+  theme_light(base_size = 8) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5),
+        axis.text.y.right = element_text(face = "italic"),
+        axis.text.y.left = element_text(face = "italic"))
+print(p)
+```
+
+\footnotesize \textbf{Figure S1}. Cox proportional hazards regression, univariate (mortality). Here the hazard ratio of each ES is compared with the hazard ratio of the genus of the highest indicator species of the ES. Both ESs and genus abundances are inverse rank normalized for comparability. * q<0.05, ** q<0.01 and ***q<0.001.
