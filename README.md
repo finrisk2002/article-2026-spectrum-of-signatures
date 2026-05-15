@@ -5,4 +5,4 @@ This repository contains analysis scripts for:
 2) Cross-sectional correlation analysis (Kendall's tau)
 3) Prospective survival analysis (multivariate Cox proportional hazards regression)
 4) Component alignment across different levels of granularity (k)
-5) Sensitivity analysis (univariate Cox proportional hazards regression)
+5) Supporting analyses (performance comparison and sensitivity analysis)
